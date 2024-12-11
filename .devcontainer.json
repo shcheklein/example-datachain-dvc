@@ -6,7 +6,7 @@
       "ghcr.io/devcontainers/features/nvidia-cuda:1": {
         "installCudnn": true
       },
-      "ghcr.io/saml-to/devcontainer-features/assume-aws-role:1": {
+      "ghcr.io/saml-to/devcontainer-features/assume-aws-role:2": {
           "role": "arn:aws:iam::342840881361:role/iterative-saml-codespaces"
       },
       "ghcr.io/iterative/features/nvtop:1": {},
@@ -19,8 +19,13 @@
           "Iterative.dvc",
           "ms-python.python",
           "redhat.vscode-yaml"
-        ]
+        ],
+        "settings": {
+          "python.defaultInterpreterPath": ".venv/bin/python",
+          "python.terminal.activateEnvInCurrentTerminal": true
+        }
       }
     },
-    "postCreateCommand": "pip install --user -r requirements.txt"
+    "postCreateCommand": "python3 -m venv .venv",
+    "postAttachCommand": ". .venv/bin/activate && pip install uv && uv pip install -r requirements.txt"
 }
