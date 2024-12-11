@@ -3,3 +3,4 @@ dvclive>=3.0.1
 fastai
 python-box
 sagemaker
+datachain
