@@ -6,7 +6,7 @@
       "ghcr.io/devcontainers/features/nvidia-cuda:1": {
         "installCudnn": true
       },
-      "ghcr.io/saml-to/devcontainer-features/assume-aws-role:2": {
+      "ghcr.io/saml-to/devcontainer-features/assume-aws-role:1": {
           "role": "arn:aws:iam::342840881361:role/iterative-saml-codespaces"
       },
       "ghcr.io/iterative/features/nvtop:1": {},
