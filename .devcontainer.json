@@ -6,12 +6,21 @@
       "ghcr.io/devcontainers/features/nvidia-cuda:1": {
         "installCudnn": true
       },
-      "ghcr.io/iterative/features/nvtop:1": {}
+      "ghcr.io/saml-to/devcontainer-features/assume-aws-role:1": {
+          "role": "arn:aws:iam::342840881361:role/iterative-saml-codespaces"
+      },
+      "ghcr.io/iterative/features/nvtop:1": {},
+      "ghcr.io/devcontainers/features/aws-cli:1": {},
+      "ghcr.io/va-h/devcontainers-features/uv:1": {}
     },
-    "extensions": [
-      "Iterative.dvc",
-      "ms-python.python",
-      "redhat.vscode-yaml"
-    ],
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "Iterative.dvc",
+          "ms-python.python",
+          "redhat.vscode-yaml"
+        ]
+      }
+    },
     "postCreateCommand": "pip install --user -r requirements.txt"
 }
