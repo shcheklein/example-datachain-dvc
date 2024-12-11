@@ -1,6 +1,6 @@
 {
     "name": "example-cv",
-    "image": "mcr.microsoft.com/devcontainers/python:3.10",
+    "image": "mcr.microsoft.com/devcontainers/python:3.12",
     "runArgs": ["--ipc=host"],
     "features": {
       "ghcr.io/devcontainers/features/nvidia-cuda:1": {
