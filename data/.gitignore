@@ -1,3 +1,5 @@
 /pool_data
 /test_data
 /train_data
+/dvc-public-versioned
+dataset.parquet

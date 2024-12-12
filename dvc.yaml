@@ -19,10 +19,20 @@ artifacts:
     - satellite-images
     - shufflenet_v2_x2_0
 stages:
+  version_data:
+    cmd: python src/dc/index.py
+    outs:
+    - data/dataset.parquet
+  export_data:
+    cmd: python src/dc/export.py
+    deps:
+    - data/dataset.parquet
+    outs:
+    - data/pool_data/
   data_split:
     cmd: python src/data_split.py
     deps:
-    - data/pool_data
+    - data/pool_data/
     - src/data_split.py
     params:
     - base

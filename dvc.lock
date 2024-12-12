@@ -3,11 +3,11 @@ stages:
   data_split:
     cmd: python src/data_split.py
     deps:
-    - path: data/pool_data
+    - path: data/pool_data/
       hash: md5
-      md5: 14d187e749ee5614e105741c719fa185.dir
-      size: 18999874
-      nfiles: 183
+      md5: 20f0d9ccc446914dfb57c7003c574c92.dir
+      size: 18992097
+      nfiles: 182
     - path: src/data_split.py
       hash: md5
       md5: 280fa1684c5496fb9f76ff8c96bd2561
@@ -22,21 +22,21 @@ stages:
     outs:
     - path: data/test_data
       hash: md5
-      md5: 1bb16eb1219b47a8bf711ade27c476e4.dir
-      size: 2087761
+      md5: 4510b01d2dc99f78f6c6e6cf5087944d.dir
+      size: 2087680
       nfiles: 24
     - path: data/train_data
       hash: md5
-      md5: a28a7e4d342c27c1d7ad3c17ec1dfa7a.dir
-      size: 16905965
+      md5: 362a2aff0c4e8d699681995114d3cf4c.dir
+      size: 16904417
       nfiles: 158
   train:
     cmd: python src/train.py
     deps:
     - path: data/train_data
       hash: md5
-      md5: a28a7e4d342c27c1d7ad3c17ec1dfa7a.dir
-      size: 16905965
+      md5: 362a2aff0c4e8d699681995114d3cf4c.dir
+      size: 16904417
       nfiles: 158
     - path: src/train.py
       hash: md5
@@ -53,33 +53,33 @@ stages:
           batch_size: 8
           fine_tune_args:
             epochs: 8
-            base_lr: 0.01
+            base_lr: 0.02
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 63cb30df484bfa1d6ea2cdebac74876c
-      size: 201725
+      md5: 7b5abfd2841e18168f67db27de985b6a
+      size: 201085
     - path: models/model.pth
       hash: md5
-      md5: 07b113fe1ab01de2d8a5453dccacdd3e
-      size: 165147
+      md5: 4b8761ea34c603b5949e41776fb29eae
+      size: 164507
     - path: results/train
       hash: md5
-      md5: a26429ff680d9b01c7e92043821bf41c.dir
-      size: 955
+      md5: 093e548d39c2747b225525d7f4b48800.dir
+      size: 958
       nfiles: 5
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/test_data
       hash: md5
-      md5: 1bb16eb1219b47a8bf711ade27c476e4.dir
-      size: 2087761
+      md5: 4510b01d2dc99f78f6c6e6cf5087944d.dir
+      size: 2087680
       nfiles: 24
     - path: models/model.pkl
       hash: md5
-      md5: 63cb30df484bfa1d6ea2cdebac74876c
-      size: 201725
+      md5: 7b5abfd2841e18168f67db27de985b6a
+      size: 201085
     - path: src/evaluate.py
       hash: md5
       md5: 84d2fd3b371546730396a763a51527a0
@@ -93,8 +93,8 @@ stages:
     outs:
     - path: results/evaluate
       hash: md5
-      md5: 34985c391291e22ac0cfdf6e83ec7268.dir
-      size: 1257936
+      md5: 99919bea86a40f799db2cb392cf5803f.dir
+      size: 1258878
       nfiles: 11
   sagemaker:
     cmd: cp models/model.pth sagemaker/code/model.pth && cd sagemaker && tar -cpzf
@@ -102,10 +102,30 @@ stages:
     deps:
     - path: models/model.pth
       hash: md5
-      md5: 07b113fe1ab01de2d8a5453dccacdd3e
-      size: 165147
+      md5: 4b8761ea34c603b5949e41776fb29eae
+      size: 164507
     outs:
     - path: model.tar.gz
       hash: md5
-      md5: c615b812da343d71fcda080597a24525
-      size: 145778
+      md5: a54654b653b52c7fdfe826d95fa64812
+      size: 145443
+  version_data:
+    cmd: python src/dc/index.py
+    outs:
+    - path: data/dataset.parquet
+      hash: md5
+      md5: 4a2ec8c54da2128f5fd8c843113862a4
+      size: 19208
+  export_data:
+    cmd: python src/dc/export.py
+    deps:
+    - path: data/dataset.parquet
+      hash: md5
+      md5: 4a2ec8c54da2128f5fd8c843113862a4
+      size: 19208
+    outs:
+    - path: data/pool_data/
+      hash: md5
+      md5: 20f0d9ccc446914dfb57c7003c574c92.dir
+      size: 18992097
+      nfiles: 182
