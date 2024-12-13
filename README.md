@@ -132,8 +132,6 @@ $ tree -L 2
 ├── dvc.yaml         # <-- DVC pipeline file
 ├── models
 │   └── model.pkl    # <-- Trained model file
-├── notebooks
-│   └── TrainSegModel.ipynb # <-- Initial notebook (refactored into `dvc.yaml`) 
 ├── params.yaml      # <-- Parameters file
 ├── requirements.txt # <-- Python dependencies needed in the project
 ├── results          # <-- DVCLive reports and plots
