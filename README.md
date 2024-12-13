@@ -1,5 +1,16 @@
 # Versionsing datasets with DataChain and DVC
 
+Note: the purpose of this project is to explore a very basic way of using
+DataChain along with DVC in a single repo, while preserving similar to DVC
+semantics (e.g. instantiating files in the project like `dvc pull` does) while
+mitigating some DVC limitations - working with a large amount of small files,
+calculating hashes, etc. DataChain gives way more benefits, it also can be used
+in a different way (e.g. use Pytorch data loader without instantiating data).
+It is out of scope here to cover all those features and possible ways to use
+it.
+
+## Intro
+
 This is a Computer Vision (CV) project that solves the problem of segmenting out 
 swimming pools from satellite images.
 
