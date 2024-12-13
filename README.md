@@ -1,32 +1,23 @@
-[![DVC](https://img.shields.io/badge/-Open_in_Studio-grey.svg?style=flat-square&logo=dvc)](https://studio.iterative.ai/team/Iterative/projects/example-get-started-experiments-y8toqd433r) 
-[![DVC-metrics](https://img.shields.io/badge/dynamic/json?style=flat-square&colorA=grey&colorB=F46737&label=Dice%20Metric&url=https://github.com/iterative/example-get-started-experiments/raw/main/results/evaluate/metrics.json&query=dice_multi)](https://github.com/iterative/example-get-started-experiments/raw/main/results/evaluate/metrics.json)
-
-[Train Report](./results/train/report.md) - [Evaluation Report](./results/evaluate/report.md)
-
-# DVC Get Started: Experiments
-
-This is an auto-generated repository for use in [DVC](https://dvc.org)
-[Get Started: Experiments](https://dvc.org/doc/start/experiment-management).
+# Versionsing datasets with DataChain and DVC
 
 This is a Computer Vision (CV) project that solves the problem of segmenting out 
-swimming pools from satellite images. 
+swimming pools from satellite images.
 
 [Example results](./results/evaluate/plots/images/)
 
 We use a slightly modified version of the [BH-Pools dataset](http://patreo.dcc.ufmg.br/2020/07/29/bh-pools-watertanks-datasets/):
 we split the original 4k images into tiles of 1024x1024 pixels.
 
-
 🐛 Please report any issues found in this project here -
 [example-repos-dev](https://github.com/iterative/example-repos-dev).
 
 ## Installation
 
-Python 3.8+ is required to run code from this repo.
+Python 3.9+ is required to run code from this repo.
 
 ```console
-$ git clone https://github.com/iterative/example-get-started-experiments
-$ cd example-get-started-experiments
+$ git clone https://github.com/shcheklein/example-datachain-dvc
+$ cd example-datachain-dvc
 ```
 
 Now let's install the requirements. But before we do that, we **strongly**
@@ -36,23 +27,8 @@ recommend creating a virtual environment with a tool such as
 ```console
 $ python -m venv .venv
 $ source .venv/bin/activate
-$ pip install -r requirements.txt
-```
-
-This DVC project comes with a preconfigured DVC
-[remote storage](https://dvc.org/doc/commands-reference/remote) that holds raw
-data (input), intermediate, and final results that are produced. This is a
-read-only HTTP remote.
-
-```console
-$ dvc remote list
-storage  https://remote.dvc.org/get-started-pools
-```
-
-You can run [`dvc pull`](https://man.dvc.org/pull) to download the data:
-
-```console
-$ dvc pull
+# pip install uv
+$ uv pip install -r requirements.txt
 ```
 
 ## Running in your environment
@@ -83,36 +59,58 @@ You should now be able to run:
 $ dvc push -r local
 ```
 
-## Existing stages
+## Data versioning
 
-There is a couple of git tags in this project :
+The basic approach to versioning data with DVC alone is outlined in the
+diagram:
 
-### [1-notebook-dvclive](https://github.com/iterative/example-get-started-experiments/tree/1-notebook-dvclive)
+![](./resources/dvc-versioning.png)
 
-Contains an end-to-end Jupyter notebook that loads data, trains a model and 
-reports model performance. 
-[DVCLive](https://dvc.org/doc/dvclive) is used for experiment tracking. 
-See this [blog post](https://iterative.ai/blog/exp-tracking-dvc-python) for more
-details.
+It's well described in the DVC [Get Started](https://dvc.org/doc/start) and in
+the [Data and Model Versioning](https://dvc.org/doc/use-cases/versioning-data-and-models/tutorial)
+tutorial.
 
-### [2-dvc-pipeline](https://github.com/iterative/example-get-started-experiments/tree/2-dvc-pipeline)
+The DataChain + DVC data versioning introduces a level of indirection and works
+better in case if there are many files in the dataset, if there is a need to 
+work with these files' metadata (e.g. pick only specific images) or need to run
+data transformations or training w/o instantiating those files (streaming):
 
-Contains a DVC pipeline `dvc.yaml` that was created by refactoring the above 
-notebook into individual pipeline stages. 
+![](./resources/datachain-versioning.png)
 
-The pipeline artifacts (processed data, model file, etc) are automatically 
-versioned. 
+The fist script `src/dc/index.py` produces a `dataset.parquet` file. It serves
+as a "dataset version". Essentially it is a list of files in the bucket with
+some filering + or additional info as needed. This file then can be versioned
+by DVC instead of the original (images on the diagram) set of files. It saves
+tons of time by avoiding reading files and calculating hashes.
 
-This tag also contains a GitHub Actions workflow that reruns the pipeline if any
- changes are introduced to the pipeline-related files. 
-[CML](https://cml.dev/) is used in this workflow to provision a cloud-based GPU 
-machine as well as report model performance results in Pull Requests.
+The second script `src/dc/export.py` is used to instantiate the dataset by
+reading a currently checked out `dataset.parquet`, thus imitating `dvc pull`
+workflow. In reality, `export_file()` might not be even needed since DataChain
+has a Pytorch data loader that can stream files (with pre-fetch and caching).
 
-## Model Deployment
+To highlight the key differences:
 
-Check out the [GitHub Workflow](https://github.com/iterative/example-get-started-experiments/blob/main/.github/workflows/deploy-model.yml)
-that uses the [Iterative Studio Model Registry](https://dvc.org/doc/studio/user-guide/model-registry/what-is-a-model-registry).
-to deploy the model to [AWS Sagemaker](https://aws.amazon.com/es/sagemaker/) whenever a new [version is registered](https://dvc.org/doc/studio/user-guide/model-registry/register-version).
+**DataChain doesn't move / copy data**
+
+DataChain captures the list of objects (images, videos, audio, etc) and if
+needed combines it with metadata (lables, bounding boxes, embeddings, etc)
+extracted fromJSONs, parquet, or even extracted and creted dynamically by
+processing objects (e.g. predictions, embeddings, etc).
+
+**DataChain doesn't calculate hashes**
+
+DataChain relies on cloud versioning (all major cloud support it) to capture
+a specific object version (version id). So, if an object is modified or removed
+it still can be retrieved later (versioning should be enabled). There is no
+need to calculate hashes like DVC does.
+
+**DataChain doesn't require instantiating files**
+
+DataChain has Pytorch data loader that can stream data and help avoiding
+materializing the dataset like `dvc pull` does (doesn't really work for a
+large dataset, can be expensive, etc). Note: this repo doesn't have an
+example of using data loader, it was made specifically to imitate `dvc pull`.
+Check the [docs](https://docs.datachain.ai/examples/#passing-data-to-training).
 
 ## Project structure
 
