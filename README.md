@@ -1,4 +1,4 @@
-# Versionsing datasets with DataChain and DVC
+# Versioning datasets with DataChain and DVC
 
 Note: the purpose of this project is to explore a very basic way of using
 DataChain along with DVC in a single repo, while preserving similar to DVC
