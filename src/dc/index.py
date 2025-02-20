@@ -8,7 +8,7 @@ from datachain import DataChain, C
 # to serve as entry point to the pipeline.
 (
     DataChain
-        .from_storage("s3://dvc-public-versioned/get-started-pools/", update=True, anon=True)
+        .from_storage("s3://dvc-public-versioned/get-started-pools/", type="image", anon=True, update=True)
         .filter(C("file.path").glob("*.jpg") | C("file.path").glob("*.png"))
         .to_parquet("data/dataset.parquet")
 )

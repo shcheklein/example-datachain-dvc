@@ -96,7 +96,7 @@ tons of time by avoiding reading files and calculating hashes.
 
 The second script `src/dc/export.py` is used to instantiate the dataset by
 reading a currently checked out `dataset.parquet`, thus imitating `dvc pull`
-workflow. In reality, `export_file()` might not be even needed since DataChain
+workflow. In reality, `to_storage()` might not be even needed since DataChain
 has a Pytorch data loader that can stream files (with pre-fetch and caching).
 
 To highlight the key differences:
